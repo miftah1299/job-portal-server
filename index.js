@@ -32,9 +32,17 @@ async function run() {
         // job collection
         const jobsCollection = client.db("jobPortal").collection("jobs");
 
+        // get all jobs
         app.get("/jobs", async (req, res) => {
             const cursor = jobsCollection.find();
             const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        // get job by id
+        app.get("/jobs/:id", async (req, res) => {
+            const id = req.params.id;
+            const result = await jobsCollection.findOne({ _id: id });
             res.send(result);
         });
     } finally {
