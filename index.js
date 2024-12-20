@@ -59,6 +59,21 @@ async function run() {
             const result = await jobApplicationsCollection
                 .find(query)
                 .toArray();
+
+            // aggregate data from jobs collection
+            for (const application of result) {
+                console.log(application.job_id);
+                const queryResult = { _id: new ObjectId(application.job_id) };
+                const job = await jobsCollection.findOne(queryResult);
+                if (job) {
+                    application.title = job.title;
+                    application.company = job.company;
+                    application.company_logo = job.company_logo;
+                    application.jobType = job.jobType;
+                    application.location = job.location;
+                    application.category = job.category;
+                }
+            }
             res.send(result);
         });
 
