@@ -31,9 +31,10 @@ async function run() {
 
         // job collection
         const jobsCollection = client.db("jobPortal").collection("jobs");
+        // job applications collection
         const jobApplicationsCollection = client
             .db("jobPortal")
-            .collection("jobApplications");
+            .collection("job-applications");
 
         // get all jobs
         app.get("/jobs", async (req, res) => {
@@ -51,7 +52,18 @@ async function run() {
         });
 
         // job application apis
-        app.post("jobs/application", async (req, res) => {
+        // get job applications by email
+        app.get("/job-applications", async (req, res) => {
+            const email = req.query.email;
+            const query = { application_email: email };
+            const result = await jobApplicationsCollection
+                .find(query)
+                .toArray();
+            res.send(result);
+        });
+
+        // create job application
+        app.post("/job-applications", async (req, res) => {
             const application = req.body;
             const result = await jobApplicationsCollection.insertOne(
                 application
