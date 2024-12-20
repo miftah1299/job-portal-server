@@ -128,6 +128,24 @@ async function run() {
             );
             res.json(result);
         });
+
+        // update job application status
+        app.patch("/job-applications/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const data = req.body;
+            const updateDoc = {
+                $set: {
+                    status: data.status,
+                },
+            };
+
+            const result = await jobApplicationsCollection.updateOne(
+                filter,
+                updateDoc
+            );
+            res.json(result);
+        });
     } finally {
         // Ensures that the client will close when you finish/error
         // await client.close();
