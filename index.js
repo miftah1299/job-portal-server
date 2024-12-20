@@ -110,6 +110,16 @@ async function run() {
             res.json(result);
         });
 
+        // get job applications by job id
+        app.get("/job-applications/jobs/:job_id", async (req, res) => {
+            const jobId = req.params.job_id;
+            const query = { job_id: jobId };
+            const result = await jobApplicationsCollection
+                .find(query)
+                .toArray();
+            res.send(result);
+        });
+
         // create job application
         app.post("/job-applications", async (req, res) => {
             const application = req.body;
