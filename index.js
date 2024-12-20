@@ -51,6 +51,13 @@ async function run() {
             res.send(result);
         });
 
+        // add job
+        app.post("/jobs", async (req, res) => {
+            const job = req.body;
+            const result = await jobsCollection.insertOne(job);
+            res.json(result);
+        });
+
         // job application apis
         // get job applications by email
         app.get("/job-applications", async (req, res) => {
@@ -62,7 +69,7 @@ async function run() {
 
             // aggregate data from jobs collection
             for (const application of result) {
-                console.log(application.job_id);
+                // console.log(application.job_id);
                 const queryResult = { _id: new ObjectId(application.job_id) };
                 const job = await jobsCollection.findOne(queryResult);
                 if (job) {
@@ -75,6 +82,14 @@ async function run() {
                 }
             }
             res.send(result);
+        });
+
+        // delete job application by email and id
+        app.delete("/job-applications/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await jobApplicationsCollection.deleteOne(query);
+            res.json(result);
         });
 
         // create job application
