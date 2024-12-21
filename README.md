@@ -4,18 +4,20 @@ This is the backend server for the Job Portal application. It is built using Nod
 
 ## Prerequisites
 
-- Node.js
-- MongoDB
+-   Node.js
+-   MongoDB
 
 ## Installation
 
 1. Clone the repository:
+
     ```sh
     git clone https://github.com/your-username/job-portal-server.git
     cd job-portal-server
     ```
 
 2. Install the dependencies:
+
     ```sh
     npm install
     ```
@@ -31,5 +33,7 @@ This is the backend server for the Job Portal application. It is built using Nod
 ## Running the Server
 
 Start the server:
+
 ```sh
-npm start
+nodemon index.js
+```
