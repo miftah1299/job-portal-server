@@ -8,9 +8,28 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+const logger = (req, res, next) => {
+    console.log("Logging route:", req.path, new Date().toISOString());
+    next();
+};
+
+const verifyToken = (req, res, next) => {
+    const token = req.cookies.token;
+    if (!token) {
+        return res.status(401).send({ message: "Access Denied" });
+    }
+    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+        if (err) {
+            return res.status(401).send({ message: "Invalid token" });
+        }
+        req.decoded = decoded;
+    });
+    next();
+};
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.fh7he.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -44,7 +63,7 @@ async function run() {
         app.post("/jwt", async (req, res) => {
             const user = req.body;
             const token = jwt.sign(user, process.env.JWT_SECRET_KEY, {
-                expiresIn: "1h",
+                expiresIn: "5h",
             });
             res.cookie("token", token, {
                 httpOnly: true,
@@ -54,7 +73,7 @@ async function run() {
 
         // job apis
         // get all jobs
-        app.get("/jobs", async (req, res) => {
+        app.get("/jobs", logger, async (req, res) => {
             const email = req.query.email;
             let query = {};
 
@@ -97,6 +116,8 @@ async function run() {
         app.get("/job-applications", async (req, res) => {
             const email = req.query.email;
             const query = { application_email: email };
+            // console.log("cookies: ", req.cookies);
+
             const result = await jobApplicationsCollection
                 .find(query)
                 .toArray();
