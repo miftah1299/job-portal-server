@@ -5,16 +5,23 @@ JWT Token Steps:
      npm i jsonwebtoken cookie-parser
      jwt.sign(payload, secret, {expiresIn: "1h"})
  
-
 2. send the token (generated in server side) to the client side
 	localstorage --> easy to access, but not secure
-
 	httpOnly cookie --> better than localstorage
 
-
 3. for sensitive / secure / private apis, send token to the server side
+	on the server side:
+```
+	app.use(cors({
+		origin: "http://localhost:5173", 
+		credentials: true 
+	}));
+```
+	in the client side:
+	use axios get, post, delete, patch for secure apis and must use withCredentials: true
 
 4. validate the token in the server side:
 	if valid: provide data
 	if invalid: logout
+
 
