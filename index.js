@@ -35,7 +35,7 @@ const verifyToken = (req, res, next) => {
         if (err) {
             return res.status(401).send({ message: "Invalid token" });
         }
-        req.decoded = decoded;
+        req.user = decoded;
     });
     next();
 };
@@ -79,25 +79,34 @@ async function run() {
             .db("jobPortal")
             .collection("job-applications");
 
-        // Auth apis
+        /**
+         *
+         * Auth apis
+         *
+         */
         // Creating token
         app.post("/jwt", async (req, res) => {
             const user = req.body;
             const token = jwt.sign(user, process.env.JWT_SECRET_KEY, {
-                expiresIn: "5h",
+                expiresIn: "10d",
             });
             res.cookie("token", token, cookieOptions).send({ success: true });
         });
+
         // clearing Token
         app.post("/logout", async (req, res) => {
-            const user = req.body;
-            console.log("logging out", user);
+            // const user = req.body;
+            // console.log("logging out", user);
             res.clearCookie("token", { ...cookieOptions, maxAge: 0 }).send({
                 success: true,
             });
         });
 
-        // job apis
+        /**
+         *
+         * job apis
+         *
+         */
         // get all jobs
         app.get("/jobs", logger, async (req, res) => {
             const email = req.query.email;
@@ -134,12 +143,17 @@ async function run() {
             res.json(result);
         });
 
-        // job application apis
+        /**
+         *
+         * job application apis
+         *
+         */
         // get job applications by email
         app.get("/job-applications", verifyToken, async (req, res) => {
             const email = req.query.email;
             const query = { application_email: email };
-            // console.log("cookies: ", req.cookies);
+            // console.log("cookies: ", req.cookies?.token);
+            //* check if the user is trying to access other user's data
             if (req.user.email !== req.query.email) {
                 return res.status(403).send({ message: "Forbidden Acceess" });
             }
