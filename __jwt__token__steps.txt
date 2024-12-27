@@ -1,27 +1,56 @@
-
 JWT Token Steps:
  
 1. After successful login, generate a jwt token and send it to the client.
-     npm i jsonwebtoken cookie-parser
-     jwt.sign(payload, secret, {expiresIn: "1h"})
- 
-2. send the token (generated in server side) to the client side
-	localstorage --> easy to access, but not secure
-	httpOnly cookie --> better than localstorage
+    ```sh
+    npm i jsonwebtoken cookie-parser
+    ```
+    ```js
+    const jwt = require('jsonwebtoken');
+    const token = jwt.sign(payload, secret, { expiresIn: "1h" });
+    ```
 
-3. for sensitive / secure / private apis, send token to the server side
-	on the server side:
-```
-	app.use(cors({
-		origin: "http://localhost:5173", 
-		credentials: true 
-	}));
-```
-	in the client side:
-	use axios get, post, delete, patch for secure apis and must use withCredentials: true
+2. Generate a secure random token in the terminal:
+    ```
+    node
+    require('crypto').randomBytes(64).toString('hex')
+    ```
 
-4. validate the token in the server side:
-	if valid: provide data
-	if invalid: logout
+3. Send the token (generated on the server side) to the client side:
+    - localStorage --> easy to access, but not secure
+    - httpOnly cookie --> better than localStorage
 
+4. For sensitive / secure / private APIs, send the token to the server side:
+    On the server side:
+    ```js
+    const cors = require('cors');
+    app.use(cors({
+        origin: "http://localhost:5173", 
+        credentials: true 
+    }));
+    ```
 
+    In the client side:
+    Use axios get, post, delete, patch for secure APIs and must use `withCredentials: true`
+    ```js
+    axios.get('http://localhost:5000/secure-api', { withCredentials: true });
+    ```
+
+5. Validate the token on the server side:
+    ```js
+    const jwt = require('jsonwebtoken');
+    app.use((req, res, next) => {
+        const token = req.cookies.token;
+        if (!token) {
+            return res.status(401).send('Access Denied');
+        }
+        try {
+            const verified = jwt.verify(token, secret);
+            req.user = verified;
+            next();
+        } catch (err) {
+            res.status(400).send('Invalid Token');
+        }
+    });
+    ```
+    - If valid: provide data
+    - If invalid: logout
