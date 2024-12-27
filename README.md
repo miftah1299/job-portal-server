@@ -35,5 +35,5 @@ This is the backend server for the Job Portal application. It is built using Nod
 Start the server:
 
 ```sh
-nodemon index.js
+npm start
 ```
